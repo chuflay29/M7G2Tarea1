@@ -14,7 +14,7 @@ pipeline {
         string(name: 'OUTPUT_FOLDER', defaultValue: "OutputScripts", description: 'Output folder');
         choice(name: 'ENVIRONMENT', choices: ['Release','Debug'], description: 'Environment type');
         choice(name: 'RUN_NPM_INSTALL', choices: ['No','Yes'], description: 'Selector to run npm install');
-        string(name: 'ANGULAR_BUILD_PATH', defaultValue: "m7tarea1.client\\dist\\m7tarea1.client", description: 'Angular Web project build path');
+        choice(name: 'COPY_WEB_CONFIG_FILE', choices: ['No','Yes'], description: 'Selector to copy web config file');
         string(name: 'ANGULAR_SITE_NAME', defaultValue: "WebVentas", description: 'Angular Web project site name');
         string(name: 'ANGULAR_SITE_PATH', defaultValue: "C:\\inetpub\\wwwroot\\WebVentas", description: 'Angular Web project site path');
         string(name: 'MSBUILD_PATH', defaultValue: "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe", description: "Msbuild path");
@@ -60,7 +60,7 @@ pipeline {
                         println(output);
                     }
                     else {
-                        println("npm install not executed.");
+                        println("npm install NOT executed.");
                     }
 
                     String configuration = "development";
@@ -93,7 +93,7 @@ pipeline {
                     output = powershell(returnStdout:true, script:command).trim();
                     println(output);
 
-                    command = "Remove-Item -Path " + "\"" + "${ANGULAR_SITE_PATH}" + "\"" + " -Recurse -Force -Exclude web.config";
+                    command = "Remove-Item -Path " + "\"" + "${ANGULAR_SITE_PATH}" + "\\*" + "\"" + " -Recurse -Force -Exclude web.config";
                     println(command);
                     output = powershell(returnStdout:true, script:command).trim();
                     println(output);
@@ -109,6 +109,16 @@ pipeline {
                     println(command);
                     output = powershell(returnStdout:true, script:command).trim();
                     println(output);
+
+                    if ("${COPY_WEB_CONFIG_FILE}" == 'Yes') {
+                        String webConfigPath= "${WORKSPACE}" + "\\" + "FE.web.config"; 
+                        command = "Copy-Item -Path " + " \"" + webConfigPath + "\"" + " -Destination "+ "\"" + "${ANGULAR_SITE_PATH}" + "\\" + "web.config" + "\"" + " -Force";
+                        println(command);
+                        output = powershell(returnStdout:true, script:command).trim();
+                        println(output);
+                    } else {
+                        println("web.config NOT copied");
+                    }
 
                     command = "Start-WebSite -Name " + "\"" + "${ANGULAR_SITE_NAME}" + "\"";
                     println(command);
@@ -134,5 +144,4 @@ pipeline {
             }
         }
     }
-
 }

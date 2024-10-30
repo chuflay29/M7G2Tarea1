@@ -10,11 +10,12 @@ pipeline {
         separator(name: "BUILD_CONFIGURATION_API", sectionHeader: "BUILD CONFIGURATION API");
         string(name: 'DOTNET_VERSION', defaultValue: "8.0", description: '.NET version');
         string(name: 'SOLUTION_NAME', defaultValue: "M7Tarea1.sln", description: '.NET Solution');
-        choice(name: 'ENVIRONMENT', choices: ['Release','Debug'], description: 'Environment type');
         string(name: 'API_PROJECT_FOLDER_NAME', defaultValue: "M7Tarea1.Server", description: 'API project .NET folder');
         string(name: 'API_PROJECT_FILE_NAME', defaultValue: "M7Tarea1.Server.csproj", description: 'API project .NET');
-        choice(name: 'RESTORE_NUGGETS', choices: ['No','Yes'], description: 'Selector to run restore nuggets');
         string(name: 'OUTPUT_FOLDER', defaultValue: "OutputScripts", description: 'Output folder');
+        choice(name: 'ENVIRONMENT', choices: ['Release','Debug'], description: 'Environment type');
+        choice(name: 'RESTORE_NUGGETS', choices: ['No','Yes'], description: 'Selector to run restore nuggets');
+        choice(name: 'COPY_WEB_CONFIG_FILE', choices: ['No','Yes'], description: 'Selector to copy web config file');
         string(name: 'API_SITE_NAME', defaultValue: "ApiVentas", description: 'Api site name');
         string(name: 'API_SITE_PATH', defaultValue: "C:\\inetpub\\wwwroot\\ApiVentas", description: 'Api site Path');
         string(name: 'MSBUILD_PATH', defaultValue: "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe", description: "Msbuild path");
@@ -42,7 +43,7 @@ pipeline {
                         println(output);
                     }
                     else {
-                        println("Restore Nuggets not executed");
+                        println("Restore Nuggets NOT executed");
                     }
                 }
             }
@@ -96,7 +97,7 @@ pipeline {
                     output = powershell(returnStdout:true, script:command).trim();
                     println(output);
 
-                    command = "Remove-Item -Path " + "\"" + "${API_SITE_PATH}" + "\"" + " -Recurse -Force -Exclude web.config";
+                    command = "Remove-Item -Path " + "\"" + "${API_SITE_PATH}" + "\\*" + "\"" + " -Recurse -Force -Exclude web.config";
                     println(command);
                     output = powershell(returnStdout:true, script:command).trim();
                     println(output);
@@ -107,6 +108,16 @@ pipeline {
                     println(command);
                     output = powershell(returnStdout:true, script:command).trim();
                     println(output);
+
+                    if ("${COPY_WEB_CONFIG_FILE}" == 'Yes') {
+                        String webConfigPath= "${WORKSPACE}" + "\\" + "BE.web.config"; 
+                        command = "Copy-Item -Path " + " \"" + webConfigPath + "\"" + " -Destination "+ "\"" + "${API_SITE_PATH}" + "\\" + "web.config" +"\"" + " -Force";
+                        println(command);
+                        output = powershell(returnStdout:true, script:command).trim();
+                        println(output);
+                    } else {
+                        println("web.config NOT copied");
+                    }
 
                     command = "Start-WebSite -Name " + "\"" + "${API_SITE_NAME}" + "\"";
                     println(command);
@@ -132,6 +143,4 @@ pipeline {
             }
         }
     }
-
-
 }
