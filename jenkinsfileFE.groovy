@@ -13,6 +13,7 @@ pipeline {
         string(name: 'ANGULAR_PROJECT_FILE_NAME', defaultValue: "m7tarea1.client.esproj", description: 'Angular Web project name');
         string(name: 'OUTPUT_FOLDER', defaultValue: "OutputScripts", description: 'Output folder');
         choice(name: 'ENVIRONMENT', choices: ['Release','Debug'], description: 'Environment type');
+        choice(name: 'INSTALL_ANGULAR', choices: ['No','Yes'], description: 'Selector to install Angular');
         choice(name: 'RUN_NPM_INSTALL', choices: ['No','Yes'], description: 'Selector to run npm install');
         choice(name: 'COPY_WEB_CONFIG_FILE', choices: ['No','Yes'], description: 'Selector to copy web config file');
         string(name: 'ANGULAR_SITE_NAME', defaultValue: "WebVentas", description: 'Angular Web project site name');
@@ -46,13 +47,23 @@ pipeline {
         stage('Build Web Project') {
             steps {
                 script {
-                    String command = "& \"" + "${MSBUILD_PATH}" + "\" -t:Build -p:Configuration="+ "${ENVIRONMENT}" + " \"" + "${WORKSPACE}" + "\\" + "${ANGULAR_PROJECT_FOLDER_NAME}" + "\\" + "${ANGULAR_PROJECT_FILE_NAME}" + "\"";
+                    String command;
+                    String output;
+
+                    if ("${INSTALL_ANGULAR}" == 'Yes') {
+                        println("Angular CLI is installing...");
+                        command = "npm install -g @angular/cli@17.0.3";
+                        output = powershell(returnStdout:true, script:command).trim();
+                        println(output);
+                    }
+
+                    command = "& \"" + "${MSBUILD_PATH}" + "\" -t:Build -p:Configuration="+ "${ENVIRONMENT}" + " \"" + "${WORKSPACE}" + "\\" + "${ANGULAR_PROJECT_FOLDER_NAME}" + "\\" + "${ANGULAR_PROJECT_FILE_NAME}" + "\"";
                     println(command);
 
-                    String output = powershell(returnStdout:true, script:command).trim();
+                    output = powershell(returnStdout:true, script:command).trim();
                     println(output);
 
-                    if ("${RUN_NPM_INSTALL}" == 'yes') {
+                    if ("${RUN_NPM_INSTALL}" == 'Yes') {
                         command = "& Set-Location -Path " + "\"" +"${WORKSPACE}" + "\\" + "${ANGULAR_PROJECT_FOLDER_NAME}" + "\"" + ";" + " npm install ";
                         println(command);
 
@@ -71,7 +82,7 @@ pipeline {
                     String outputFilePath = "${WORKSPACE}" + "\\" + "${OUTPUT_FOLDER}" + "\\" + "${BUILD_NUMBER}" + "\\" + "${ENVIRONMENT}" + "\\" + "${ANGULAR_PROJECT_FOLDER_NAME}";
                     println("outputFilePath: " + outputFilePath);
 
-                    command = "& Set-Location -Path " + "\"" +"${WORKSPACE}" + "\\" + "${ANGULAR_PROJECT_FOLDER_NAME}" + "\"" + ";" + " ng build --configuration=" + configuration + " --output-path=" + outputFilePath;
+                    command = "& Set-Location -Path " + "\"" +"${WORKSPACE}" + "\\" + "${ANGULAR_PROJECT_FOLDER_NAME}" + "\"" + ";" + " npm run build -- --configuration=" + configuration + " --output-path=" + outputFilePath;
                     println(command);
 
                     output = powershell(returnStdout:true, script:command).trim();
