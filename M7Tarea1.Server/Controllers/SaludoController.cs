@@ -12,5 +12,11 @@ namespace M7Tarea1.Server.Controllers
         {
             return Ok("Hola, mundo");
         }
+
+        [HttpGet("{titulo}")]
+        public IActionResult GetSaludo(string titulo)
+        {
+            return Ok("Hola, " + titulo);
+        }
     }
 }

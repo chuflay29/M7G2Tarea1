@@ -75,15 +75,21 @@
       <mat-error *ngIf="formCliente.get('email')?.hasError('email')">Correo no válido</mat-error>
     </mat-form-field>
 
+    <!-- TEST CODE-->
+    <mat-form-field appearance="fill">
+      <mat-label>Nuevo Campo</mat-label>
+      <input matInput formControlName="nuevo" placeholder="Nuevo Campo" maxlength="100" required>
+    </mat-form-field>
+
     <!--<mat-form-field appearance="fill">
-      <mat-label>Grupo Cliente ID</mat-label>
-      <input matInput formControlName="grupoClienteId" placeholder="1" maxlength="3" required>
-      <mat-hint align="end">{{formCliente.get('grupoClienteId')?.value?.length || 0}}/3</mat-hint>
-      <mat-error *ngIf="formCliente.get('grupoClienteId')?.hasError('required')">Grupo Cliente ID es requerido</mat-error>
-      <mat-error *ngIf="formCliente.get('grupoClienteId')?.hasError('maxlength')">
-        Máximo 10 caracteres permitidos
-      </mat-error>
-    </mat-form-field>-->
+    <mat-label>Grupo Cliente ID</mat-label>
+    <input matInput formControlName="grupoClienteId" placeholder="1" maxlength="3" required>
+    <mat-hint align="end">{{formCliente.get('grupoClienteId')?.value?.length || 0}}/3</mat-hint>
+    <mat-error *ngIf="formCliente.get('grupoClienteId')?.hasError('required')">Grupo Cliente ID es requerido</mat-error>
+    <mat-error *ngIf="formCliente.get('grupoClienteId')?.hasError('maxlength')">
+      Máximo 10 caracteres permitidos
+    </mat-error>
+  </mat-form-field>-->
 
 
     <div class="button-container">
